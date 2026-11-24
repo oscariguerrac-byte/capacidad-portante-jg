@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0B2545"/>
+  <rect x="96" y="300" width="320" height="40" fill="#BDD7EE"/>
+  <rect x="216" y="200" width="80" height="100" fill="#BDD7EE"/>
+  <path d="M96 340 Q256 470 416 340" fill="none" stroke="#7FB3F0" stroke-width="10"/>
+  <text x="256" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="110" fill="#FFFFFF">J.G</text>
+</svg>

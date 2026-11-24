@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Capacidad Portante J.G</title>
+<meta name="description" content="Estimación de capacidad portante de cimentaciones superficiales – Terzaghi, Meyerhof y Hansen – NSR-10 Título H">
+<meta name="theme-color" content="#0B2545">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --azul:#0B2545; --azul-claro:#BDD7EE; --acento:#1F5FA8;
+  --bg:#F3F6FA; --card:#FFFFFF; --txt:#14202E; --muted:#5B6B7D; --borde:#D5DEE8;
+  --ok:#1E7B45; --warn:#9A6400; --warn-bg:#FFF4D6; --err:#B3261E;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0E1622; --card:#16212F; --txt:#E6EDF5; --muted:#9AAABB; --borde:#2A3A4E;
+         --acento:#7FB3F0; --warn-bg:#3A2E10; --warn:#F2C35B; --ok:#6CD39A; --err:#FF8A80; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+header.app{background:var(--azul);color:#fff;padding:14px 16px calc(12px);position:sticky;top:0;z-index:5;
+  padding-top:calc(14px + env(safe-area-inset-top))}
+header.app .row{display:flex;align-items:center;gap:12px;max-width:760px;margin:0 auto}
+.logo{width:40px;height:40px;border-radius:8px;background:#fff;color:var(--azul);font-weight:800;display:grid;place-items:center;font-size:15px;flex:none}
+header.app h1{font-size:16px;margin:0;line-height:1.2}
+header.app small{opacity:.8;font-size:12px}
+main{max-width:760px;margin:0 auto;padding:12px 16px}
+section.card{background:var(--card);border:1px solid var(--borde);border-radius:12px;padding:14px;margin-bottom:12px}
+section.card h2{font-size:14px;margin:0 0 10px;color:var(--acento);text-transform:uppercase;letter-spacing:.04em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid .full{grid-column:1/-1}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+input,select{width:100%;font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(--borde);border-radius:8px;padding:9px 10px;min-height:42px}
+input:focus,select:focus{outline:2px solid var(--acento);outline-offset:0}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt);margin:0}
+.chk input{width:20px;min-height:20px;height:20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips label{display:flex;align-items:center;gap:6px;border:1px solid var(--borde);border-radius:999px;padding:6px 12px;color:var(--txt);font-size:13px;margin:0;background:var(--bg)}
+.chips input{width:16px;min-height:16px;height:16px}
+.hide{display:none!important}
+.result-hero{display:flex;flex-direction:column;gap:2px;background:var(--azul);color:#fff;border-radius:12px;padding:14px;margin-bottom:10px}
+.result-hero .big{font-size:30px;font-weight:800;line-height:1.1}
+.result-hero .sub{font-size:13px;opacity:.85}
+table.res{width:100%;border-collapse:collapse;font-size:13px}
+table.res th,table.res td{padding:6px 4px;border-bottom:1px solid var(--borde);text-align:right}
+table.res th:first-child,table.res td:first-child{text-align:left}
+table.res th{color:var(--muted);font-weight:600}
+tr.min td{font-weight:700;color:var(--ok)}
+.avisos{margin:8px 0 0;padding:0;list-style:none}
+.avisos li{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:7px 10px;margin-top:6px;font-size:13px}
+details{margin-top:10px;border-top:1px solid var(--borde);padding-top:8px}
+summary{cursor:pointer;font-weight:600;font-size:14px}
+.scroll{overflow-x:auto}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--borde);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;z-index:6}
+.bar button{flex:1;max-width:360px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 14px;min-height:46px;cursor:pointer}
+.btn-pri{background:var(--azul);color:#fff}
+.btn-sec{background:var(--azul-claro);color:var(--azul)}
+@media (prefers-color-scheme: dark){ .btn-pri{background:#2B5C97} .result-hero{background:#123760} }
+.note{font-size:12px;color:var(--muted);margin:6px 0 0}
+
+/* ================= REPORTE ================= */
+#reporteWrap{position:fixed;inset:0;background:#6b7785;z-index:20;overflow:auto;padding:12px 8px 90px}
+#reporteWrap .tools{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;justify-content:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#0B2545;z-index:21}
+#reporteWrap .tools button{flex:1;max-width:260px}
+.hoja{background:#fff;color:#000;max-width:216mm;margin:0 auto;padding:18mm 16mm 16mm 20mm;font:10.5pt/1.4 "Arial",sans-serif;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+@media screen and (max-width:600px){ .hoja{padding:5mm 4mm;font-size:9.5pt} .hoja .eq{font-size:10pt} }
+.hoja .enc{background:#0B2545;color:#fff;padding:8px 12px;display:flex;gap:10px;align-items:center}
+.hoja .enc .logo{width:44px;height:44px;font-size:16px}
+.hoja .enc .t1{font-weight:700;font-size:10.5pt}
+.hoja .enc .t2{font-size:9pt;opacity:.9}
+.hoja .proy{border:1px solid #0B2545;border-top:0;padding:5px 12px;font-size:9.5pt;color:#0B2545;font-weight:700}
+.hoja .titulo{background:#BDD7EE;color:#0B2545;text-align:center;font-weight:700;font-size:12.5pt;padding:8px;margin:14px 0 10px}
+.hoja h3{font-size:11pt;color:#0B2545;margin:14px 0 6px}
+.hoja p{margin:4px 0;text-align:justify}
+.hoja .cap{font-size:9.5pt;font-weight:700;text-align:center;margin:10px 0 3px}
+.hoja .fte{font-size:8.5pt;margin:2px 0 8px}
+.hoja table{width:100%;border-collapse:collapse;font-size:9.5pt}
+.hoja th,.hoja td{border:1px solid #7f8c99;padding:3px 6px;text-align:center}
+.hoja th{background:#BDD7EE;color:#0B2545}
+.hoja td.l{text-align:left}
+.hoja tr.adopt td{background:#E2EFDA;font-weight:700}
+.hoja .eq{text-align:center;margin:6px 0;font-family:"Cambria Math","Times New Roman",serif;font-size:11pt}
+.hoja .eqn{display:flex;align-items:center}
+.hoja .eqn .eq{flex:1}
+.hoja .eqn .n{width:40px;text-align:right;font-size:10pt}
+.hoja ul{margin:4px 0;padding-left:18px}
+.hoja li{margin:2px 0;text-align:justify}
+.hoja .firma{margin-top:34px;display:flex;justify-content:flex-start}
+.hoja .firma div{border-top:1px solid #000;padding-top:4px;width:300px;font-size:9.5pt}
+.hoja .pie{margin-top:18px;border-top:2px solid #0B2545;padding-top:5px;font-size:8.5pt;color:#0B2545;text-align:center}
+.hoja .pend{background:#FFFF00}
+.hoja .refs li{font-size:9pt}
+.hoja .nobr{page-break-inside:avoid;break-inside:avoid}
+
+@media print{
+  @page{size:letter;margin:3cm 2cm 2cm 3cm}
+  body{background:#fff;padding:0}
+  body > *:not(#reporteWrap){display:none!important}
+  #reporteWrap{position:static;background:#fff;padding:0;overflow:visible}
+  #reporteWrap .tools{display:none}
+  .hoja{box-shadow:none;max-width:none;padding:0;margin:0}
+  .hoja th,.hoja .enc,.hoja .titulo,.hoja tr.adopt td,.hoja .pend{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="row">
+    <div class="logo">J.G</div>
+    <div>
+      <h1>Capacidad portante</h1>
+      <small>Cimentaciones superficiales · NSR-10 Título H</small>
+    </div>
+  </div>
+</header>
+
+<main id="app">
+  <section class="card">
+    <h2>Proyecto</h2>
+    <div class="grid">
+      <div class="full"><label for="proyecto">Nombre del proyecto</label><input id="proyecto" type="text" placeholder="Ej.: Vivienda unifamiliar de dos pisos"></div>
+      <div class="full"><label for="solicitante">Solicitante</label><input id="solicitante" type="text"></div>
+      <div class="full"><label for="ubicacion">Localización</label><input id="ubicacion" type="text" placeholder="Dirección, municipio"></div>
+      <div><label for="numero">N.º de reporte</label><input id="numero" type="text" placeholder="JG-CP-001-2026"></div>
+      <div><label for="fecha">Fecha</label><input id="fecha" type="date"></div>
+      <div class="full"><label for="estrato">Estrato de apoyo / sondeo de referencia</label><input id="estrato" type="text" placeholder="Ej.: E2 – Arena limosa (SM), sondeo S-1"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Cimentación</h2>
+    <div class="grid">
+      <div class="full"><label for="tipo">Tipo de zapata</label>
+        <select id="tipo">
+          <option value="cuadrada">Cuadrada</option>
+          <option value="rectangular">Rectangular</option>
+          <option value="corrida">Corrida (continua)</option>
+          <option value="circular">Circular</option>
+        </select></div>
+      <div><label for="B" id="lblB">Ancho B (m)</label><input id="B" type="number" inputmode="decimal" step="0.05" min="0"></div>
+      <div id="boxL"><label for="L">Largo L (m)</label><input id="L" type="number" inputmode="decimal" step="0.05" min="0"></div>
+      <div><label for="Df">Profundidad Df (m)</label><input id="Df" type="number" inputmode="decimal" step="0.05" min="0"></div>
+      <div><label for="beta">Inclinación de la carga β (°)</label><input id="beta" type="number" inputmode="decimal" step="1" min="0" max="89"></div>
+      <div id="boxeB"><label for="eB">Excentricidad eB (m)</label><input id="eB" type="number" inputmode="decimal" step="0.01" min="0"></div>
+      <div id="boxeL"><label for="eL">Excentricidad eL (m)</label><input id="eL" type="number" inputmode="decimal" step="0.01" min="0"></div>
+      <div class="full"><label for="V" id="lblV">Carga vertical de servicio V (kN) – opcional</label><input id="V" type="number" inputmode="decimal" step="1" min="0"></div>
+    </div>
+    <p class="note" id="notaV">En zapata corrida, V se ingresa en kN por metro lineal.</p>
+  </section>
+
+  <section class="card">
+    <h2>Suelo de apoyo</h2>
+    <div class="grid">
+      <div><label for="c">Cohesión c′ (kPa)</label><input id="c" type="number" inputmode="decimal" step="0.5" min="0"></div>
+      <div><label for="phi">Fricción φ′ (°)</label><input id="phi" type="number" inputmode="decimal" step="0.5" min="0" max="50"></div>
+      <div><label for="g">Peso unitario γ (kN/m³)</label><input id="g" type="number" inputmode="decimal" step="0.1" min="0"></div>
+      <div><label for="gsat">γ saturado (kN/m³)</label><input id="gsat" type="number" inputmode="decimal" step="0.1" min="0"></div>
+      <div class="full"><label class="chk"><input id="nfOn" type="checkbox"> Se detectó nivel freático</label></div>
+      <div class="full" id="boxDw"><label for="Dw">Profundidad del nivel freático Dw (m)</label><input id="Dw" type="number" inputmode="decimal" step="0.05" min="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Métodos y factores de seguridad</h2>
+    <div class="chips">
+      <label><input type="checkbox" id="mTerzaghi" checked> Terzaghi</label>
+      <label><input type="checkbox" id="mMeyerhof" checked> Meyerhof (general)</label>
+      <label><input type="checkbox" id="mHansen" checked> Hansen</label>
+    </div>
+    <div class="grid" style="margin-top:10px">
+      <div><label for="FS">FS indirecto sobre qu</label><input id="FS" type="number" inputmode="decimal" step="0.1" min="1"></div>
+      <div><label for="FSBM">FSBM directo (c′, tan φ′)</label><input id="FSBM" type="number" inputmode="decimal" step="0.05" min="1"></div>
+      <div class="full"><label class="chk"><input id="usarDirecto" type="checkbox" checked> Verificar también con FS directo y adoptar el menor</label></div>
+    </div>
+    <p class="note">NSR-10: FS indirecto 3,0 (condición estática); FSBM directo 1,50 sobre c′ y tan φ′ (Tabla H.2.4-1).</p>
+  </section>
+
+  <section class="card" id="resultados">
+    <h2>Resultados</h2>
+    <div class="result-hero">
+      <span class="sub">Capacidad admisible mínima</span>
+      <span class="big" id="rq">—</span>
+      <span class="sub" id="rq2"></span>
+    </div>
+    <div class="scroll">
+      <table class="res" id="tabRes"></table>
+    </div>
+    <ul class="avisos" id="avisos"></ul>
+    <details id="detalle">
+      <summary>Factores por método</summary>
+      <div class="scroll" id="factores"></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Datos del laboratorio (pie del reporte)</h2>
+    <div class="grid">
+      <div class="full"><label for="tel">Teléfonos</label><input id="tel" type="text"></div>
+      <div class="full"><label for="mail">Correos</label><input id="mail" type="text"></div>
+    </div>
+    <p class="note">Los datos se guardan solo en este dispositivo.</p>
+  </section>
+</main>
+
+<div class="bar">
+  <button class="btn-sec" id="btnLimpiar">Nuevo cálculo</button>
+  <button class="btn-pri" id="btnReporte">Ver reporte</button>
+</div>
+
+<div id="reporteWrap" class="hide">
+  <div class="hoja" id="hoja"></div>
+  <div class="tools">
+    <button class="btn-sec" id="btnCerrar">Cerrar</button>
+    <button class="btn-pri" id="btnImprimir" style="background:#BDD7EE;color:#0B2545">Imprimir / PDF</button>
+  </div>
+</div>
+
+<script src="calc.js"></script>
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const KEY = 'jg-capacidad-portante-v1';
+const LAB = {
+  nombre: 'J.G Laboratorio de Suelos, Concretos y Pavimentos',
+  dir: 'Calle 36A N.º 12A-55, Riohacha, La Guajira',
+  resp: 'Oscar Iván Guerra Chinchilla',
+  cargo: 'Ingeniero Civil – Especialista en Ingeniería de Fundaciones',
+  mp: 'M.P. 25202-252478 CND'
+};
+const hoy = () => { const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+const DEF = { proyecto:'', solicitante:'', ubicacion:'', numero:'', fecha:hoy(), estrato:'',
+  tipo:'cuadrada', B:1.5, L:1.5, Df:1.2, beta:0, eB:0, eL:0, V:'', c:10, phi:28, g:18, gsat:19.5, nfOn:false, Dw:'',
+  mTerzaghi:true, mMeyerhof:true, mHansen:true, FS:3, FSBM:1.5, usarDirecto:true, tel:'', mail:'' };
+const CAMPOS = Object.keys(DEF);
+const LAB_CAMPOS = ['tel','mail'];
+
+/* --- persistencia (solo conveniencia local) --- */
+function cargar(){ try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ return null; } }
+function guardar(v){ try{ localStorage.setItem(KEY, JSON.stringify(v)); }catch(e){} }
+
+function setVals(v){
+  for(const k of CAMPOS){ const el=$(k); if(!el) continue;
+    if(el.type==='checkbox') el.checked = !!v[k]; else el.value = v[k] ?? ''; }
+}
+function getVals(){
+  const v={};
+  for(const k of CAMPOS){ const el=$(k); v[k] = el.type==='checkbox' ? el.checked : el.value; }
+  return v;
+}
+const num = x => { const n = parseFloat(String(x).replace(',','.')); return isFinite(n) ? n : 0; };
+
+function params(v){
+  return { tipo:v.tipo, B:num(v.B), L:num(v.L), Df:num(v.Df), beta:num(v.beta), eB:num(v.eB), eL:num(v.eL),
+    V:num(v.V), c:num(v.c), phi:num(v.phi), g:num(v.g), gsat:num(v.gsat), nfOn:v.nfOn, Dw:num(v.Dw),
+    FS:Math.max(1,num(v.FS)), FSBM:Math.max(1,num(v.FSBM)), usarDirecto:v.usarDirecto,
+    metodos:{ terzaghi:v.mTerzaghi, meyerhof:v.mMeyerhof, hansen:v.mHansen } };
+}
+
+/* --- formato numérico es-CO --- */
+function f(x,d=2){ return (typeof x==='number' && isFinite(x)) ? x.toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d}) : '—'; }
+const KGF = 98.0665, TM2 = 9.80665;
+
+function validar(p){
+  const e=[];
+  if(!(p.B>0)) e.push('Ingrese B > 0.');
+  if(p.tipo==='rectangular' && !(p.L>0)) e.push('Ingrese L > 0.');
+  if(!(p.g>0)) e.push('Ingrese γ > 0.');
+  if(p.nfOn && !(p.gsat>CP.GW)) e.push('γ saturado debe ser mayor que γw = 9,81 kN/m³.');
+  if(p.phi>50) e.push('φ′ > 50° está fuera del rango usual.');
+  if(p.phi===0 && p.c===0) e.push('Con c′ = 0 y φ′ = 0 no hay resistencia.');
+  if(!p.metodos.terzaghi && !p.metodos.meyerhof && !p.metodos.hansen) e.push('Seleccione al menos un método.');
+  return e;
+}
+
+function ui(){
+  const t=$('tipo').value;
+  $('boxL').classList.toggle('hide', t!=='rectangular');
+  $('boxeL').classList.toggle('hide', t==='corrida' || t==='circular');
+  $('boxeB').classList.toggle('hide', t==='circular');
+  $('lblB').textContent = t==='circular' ? 'Diámetro D (m)' : 'Ancho B (m)';
+  $('notaV').classList.toggle('hide', t!=='corrida');
+  $('boxDw').classList.toggle('hide', !$('nfOn').checked);
+}
+
+let ULTIMO=null;
+function recalcular(){
+  ui();
+  const v=getVals(); guardar(v);
+  const p=params(v);
+  const errs=validar(p);
+  const av=$('avisos'); av.innerHTML='';
+  if(errs.length){
+    $('rq').textContent='—'; $('rq2').textContent=''; $('tabRes').innerHTML=''; $('factores').innerHTML='';
+    errs.forEach(m=>{ const li=document.createElement('li'); li.textContent=m; av.appendChild(li); });
+    ULTIMO=null; return;
+  }
+  const R=CP.calcular(p);
+  ULTIMO={v,p,R};
+  const avisos=R.avisos.slice();
+  const u = p.tipo==='corrida' ? 'kN/m' : 'kN';
+  let h='<tr><th>Método</th><th>q<sub>u</sub></th><th>q<sub>adm</sub> ind.</th>'+(p.usarDirecto?'<th>q<sub>adm</sub> dir.</th>':'')+'<th>q<sub>adm</sub></th></tr>';
+  for(const k of ['terzaghi','meyerhof','hansen']){
+    const m=R.metodos[k]; if(!m) continue;
+    if(!m.est.ok){ h+=`<tr><td>${m.nombre}</td><td colspan="${p.usarDirecto?4:3}" style="text-align:left">No aplica</td></tr>`; avisos.push(m.nombre+': '+m.est.msg); continue; }
+    m.est.avisos.forEach(a=>avisos.push(m.nombre+': '+a));
+    h+=`<tr class="${R.minKey===k?'min':''}"><td>${m.nombre}</td><td>${f(m.est.qu,1)}</td><td>${f(m.qadmInd,1)}</td>`+
+       (p.usarDirecto?`<td>${f(m.qadmDir,1)}</td>`:'')+`<td>${f(m.qadm,1)}</td></tr>`;
+  }
+  h+=`<tr><td colspan="${p.usarDirecto?5:4}" style="text-align:left;color:var(--muted);font-size:12px">Valores en kPa</td></tr>`;
+  $('tabRes').innerHTML=h;
+  if(isFinite(R.qadmMin)){
+    $('rq').textContent=f(R.qadmMin,1)+' kPa';
+    let s=`${f(R.qadmMin/KGF,2)} kgf/cm² · ${f(R.qadmMin/TM2,2)} t/m² · Q adm = ${f(R.QadmMin,1)} ${u}`;
+    if(p.V>0) s+= R.QadmMin>=p.V ? ' · CUMPLE con V' : ' · NO CUMPLE con V';
+    $('rq2').textContent=s;
+  } else { $('rq').textContent='—'; $('rq2').textContent='Ningún método aplicable'; }
+  if(R.W && R.W.caso<3) avisos.push(`Nivel freático: caso ${R.W.caso} (q y γ efectivos corregidos).`);
+  avisos.forEach(m=>{ const li=document.createElement('li'); li.textContent=m; av.appendChild(li); });
+  $('factores').innerHTML = tablaFactores(R, false);
+}
+
+function tablaFactores(R, rep){
+  let h='';
+  for(const k of ['terzaghi','meyerhof','hansen']){
+    const m=R.metodos[k]; if(!m||!m.est.ok) continue;
+    const e=m.est, phi0 = e.forma==='phi0';
+    h+=(rep?'':`<p style="margin:10px 0 4px;font-weight:600">${m.nombre}</p>`);
+    h+=`<table class="${rep?'':'res'}"><tr><th>Término</th><th>N</th><th>${phi0?"s′":'s'}</th><th>${phi0?"d′":'d'}</th><th>${phi0?"i′":'i'}</th><th>Aporte (kPa)</th></tr>`;
+    const fila=(n,key,ix)=>`<tr><td class="l">${n}</td><td>${f(e.N[key],3)}</td><td>${f(e.s[key],3)}</td><td>${f(e.d[key],3)}</td><td>${f(e.i[key],3)}</td><td>${f(e.terms[ix],1)}</td></tr>`;
+    h+=fila('Cohesión (c)','c',0)+fila('Sobrecarga (q)','q',1)+fila('Peso propio (γ)','g',2);
+    h+=`<tr><td class="l"><b>q<sub>u</sub></b></td><td colspan="4"></td><td><b>${f(e.qu,1)}</b></td></tr></table>`;
+  }
+  return h;
+}
+
+/* ================= REPORTE ================= */
+const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pend = (s,txt='PENDIENTE') => s && String(s).trim() ? esc(s) : `<span class="pend">${txt}</span>`;
+const TIPOS = {cuadrada:'Cuadrada', rectangular:'Rectangular', corrida:'Corrida (continua)', circular:'Circular'};
+
+function fechaLarga(iso){
+  if(!iso) return '<span class="pend">PENDIENTE</span>';
+  const d=new Date(iso+'T12:00:00');
+  return d.toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});
+}
+
+function ecuaciones(p,R){
+  let n=0, h='';
+  const eq=(s)=>{ n++; return `<div class="eqn"><div class="eq">${s}</div><div class="n">(${n})</div></div>`; };
+  h+=`<p>Para cargas excéntricas se emplea el área efectiva de Meyerhof (1953):</p>`;
+  h+=eq(`B′ = B − 2e<sub>B</sub> ;&nbsp;&nbsp; L′ = L − 2e<sub>L</sub> ;&nbsp;&nbsp; A′ = B′·L′`);
+  if(p.metodos.terzaghi){
+    h+=`<p><b>Terzaghi (1943).</b> Falla general por corte, sin factores de profundidad ni de inclinación:</p>`;
+    h+=eq(`q<sub>u</sub> = c′·N<sub>c</sub>·s<sub>c</sub> + q·N<sub>q</sub> + ½·γ·B′·N<sub>γ</sub>·s<sub>γ</sub>`);
+    h+=eq(`N<sub>q</sub> = a² / [2·cos²(45° + φ′/2)] ;&nbsp; a = e<sup>(0,75π − φ′/2)·tan φ′</sup> ;&nbsp; N<sub>c</sub> = (N<sub>q</sub> − 1)·cot φ′`);
+    h+=eq(`N<sub>γ</sub> ≈ 2(N<sub>q</sub> + 1)·tan φ′ / (1 + 0,4·sen 4φ′)`);
+    h+=`<p>N<sub>γ</sub> según la aproximación de Coduto (2001); para φ′ = 0, N<sub>c</sub> = 5,7. Factores de forma: s<sub>c</sub> = 1,3 y s<sub>γ</sub> = 0,8 (cuadrada); 1,3 y 0,6 (circular); 1 + 0,3·B′/L′ y 1 − 0,2·B′/L′ (rectangular); 1,0 (corrida).</p>`;
+  }
+  if(p.metodos.meyerhof){
+    h+=`<p><b>Ecuación general de capacidad portante (Meyerhof, 1963)</b>, con los factores recopilados por Das (2016):</p>`;
+    h+=eq(`q<sub>u</sub> = c′·N<sub>c</sub>·F<sub>cs</sub>·F<sub>cd</sub>·F<sub>ci</sub> + q·N<sub>q</sub>·F<sub>qs</sub>·F<sub>qd</sub>·F<sub>qi</sub> + ½·γ·B′·N<sub>γ</sub>·F<sub>γs</sub>·F<sub>γd</sub>·F<sub>γi</sub>`);
+    h+=eq(`N<sub>q</sub> = tan²(45° + φ′/2)·e<sup>π·tan φ′</sup> ;&nbsp; N<sub>c</sub> = (N<sub>q</sub> − 1)·cot φ′ ;&nbsp; N<sub>γ</sub> = 2(N<sub>q</sub> + 1)·tan φ′`);
+    h+=eq(`F<sub>cs</sub> = 1 + (B′/L′)(N<sub>q</sub>/N<sub>c</sub>) ;&nbsp; F<sub>qs</sub> = 1 + (B′/L′)·tan φ′ ;&nbsp; F<sub>γs</sub> = 1 − 0,4·(B′/L′)`);
+    h+=eq(`F<sub>qd</sub> = 1 + 2·tan φ′(1 − sen φ′)²·k ;&nbsp; F<sub>cd</sub> = F<sub>qd</sub> − (1 − F<sub>qd</sub>)/(N<sub>c</sub>·tan φ′) ;&nbsp; F<sub>γd</sub> = 1`);
+    h+=eq(`F<sub>ci</sub> = F<sub>qi</sub> = (1 − β°/90°)² ;&nbsp; F<sub>γi</sub> = (1 − β/φ′)²`);
+    h+=`<p>N<sub>q</sub> de Reissner (1924), N<sub>c</sub> de Prandtl (1921), N<sub>γ</sub> de Vesić (1973); forma de De Beer (1970); profundidad de Hansen (1970), con k = D<sub>f</sub>/B si D<sub>f</sub>/B ≤ 1 y k = tan<sup>−1</sup>(D<sub>f</sub>/B) en radianes si D<sub>f</sub>/B &gt; 1 (para φ′ = 0: F<sub>cd</sub> = 1 + 0,4·k y N<sub>c</sub> = 5,14); inclinación de Meyerhof (1963) y Hanna y Meyerhof (1981).</p>`;
+  }
+  if(p.metodos.hansen){
+    h+=`<p><b>Hansen (1970)</b>, según Bowles (1996):</p>`;
+    h+=eq(`q<sub>u</sub> = c′·N<sub>c</sub>·s<sub>c</sub>·d<sub>c</sub>·i<sub>c</sub> + q·N<sub>q</sub>·s<sub>q</sub>·d<sub>q</sub>·i<sub>q</sub> + ½·γ·B′·N<sub>γ</sub>·s<sub>γ</sub>·d<sub>γ</sub>·i<sub>γ</sub> ;&nbsp; N<sub>γ</sub> = 1,5(N<sub>q</sub> − 1)·tan φ′`);
+    h+=eq(`s<sub>c</sub> = 1 + (N<sub>q</sub>/N<sub>c</sub>)(B′/L′) ;&nbsp; s<sub>q</sub> = 1 + (B′/L′)·sen φ′ ;&nbsp; s<sub>γ</sub> = 1 − 0,4·(B′/L′) ≥ 0,6`);
+    h+=eq(`d<sub>c</sub> = 1 + 0,4·k ;&nbsp; d<sub>q</sub> = 1 + 2·tan φ′(1 − sen φ′)²·k ;&nbsp; d<sub>γ</sub> = 1`);
+    h+=eq(`i<sub>q</sub> = [1 − 0,5·H/(V + A′·c<sub>a</sub>·cot φ′)]<sup>5</sup> ;&nbsp; i<sub>γ</sub> = [1 − 0,7·H/(V + A′·c<sub>a</sub>·cot φ′)]<sup>5</sup> ;&nbsp; i<sub>c</sub> = i<sub>q</sub> − (1 − i<sub>q</sub>)/(N<sub>q</sub> − 1)`);
+    h+=`<p>Para φ′ = 0: q<sub>u</sub> = 5,14·s<sub>u</sub>·(1 + s′<sub>c</sub> + d′<sub>c</sub> − i′<sub>c</sub>) + q, con s′<sub>c</sub> = 0,2·B′/L′, d′<sub>c</sub> = 0,4·k e i′<sub>c</sub> = 0,5 − 0,5·√(1 − H/(A′·c<sub>a</sub>)). Se toma H = V·tan β y c<sub>a</sub> = c′. Cuando no se suministra V, se adopta H/V = tan β y se omite el término A′·c<sub>a</sub>·cot φ′ (hipótesis conservadora).</p>`;
+  }
+  h+=`<p><b>Nivel freático.</b> Si D<sub>w</sub> ≤ D<sub>f</sub>: q = γ·D<sub>w</sub> + γ′·(D<sub>f</sub> − D<sub>w</sub>) y en el tercer término se usa γ′ = γ<sub>sat</sub> − γ<sub>w</sub>. Si D<sub>f</sub> &lt; D<sub>w</sub> ≤ D<sub>f</sub> + B′: γ̄ = γ′ + (d/B′)(γ − γ′), con d = D<sub>w</sub> − D<sub>f</sub>. Si D<sub>w</sub> &gt; D<sub>f</sub> + B′, el nivel freático no afecta la capacidad portante.</p>`;
+  h+=`<p><b>Capacidad admisible.</b> Se calcula con el factor de seguridad indirecto y, cuando se indica, con el factor de seguridad directo FS<sub>BM</sub> aplicado a los parámetros de resistencia (NSR-10, Tabla H.2.4-1); se adopta el menor valor:</p>`;
+  h+=eq(`q<sub>adm,ind</sub> = q<sub>u</sub> / FS<sub>ICP</sub> ;&nbsp;&nbsp; q<sub>adm,dir</sub> = q<sub>u</sub>(c′/FS<sub>BM</sub>, tan<sup>−1</sup>[tan φ′/FS<sub>BM</sub>])`);
+  return h;
+}
+
+function reporte(){
+  if(!ULTIMO){ alert('Complete los datos: hay errores en el cálculo.'); return; }
+  const {v,p,R}=ULTIMO, G=R.G, W=R.W;
+  const u = p.tipo==='corrida' ? 'kN/m' : 'kN';
+  let t=0; const T=(s)=>{ t++; return `<div class="cap">Tabla ${t}. ${s}</div>`; };
+  const fte='<div class="fte">Fuente: elaboración propia.</div>';
+  let h='';
+  h+=`<div class="enc"><div class="logo">J.G</div><div><div class="t1">${LAB.nombre}</div>
+      <div class="t2">Reporte N.º ${pend(v.numero)} · Estimación de capacidad portante – NSR-10, Título H</div></div></div>
+      <div class="proy">${pend(v.proyecto)}</div>`;
+  h+=`<div class="titulo">MEMORIA DE CÁLCULO DE CAPACIDAD PORTANTE<br><span style="font-size:10pt;font-weight:400">Cimentaciones superficiales – Ecuación general de capacidad portante</span></div>`;
+
+  h+=`<h3>1. Datos generales</h3>`+T('Datos generales del estudio.');
+  h+=`<table><tr><td class="l" style="width:38%"><b>Proyecto:</b></td><td class="l">${pend(v.proyecto)}</td></tr>
+      <tr><td class="l"><b>Solicitante:</b></td><td class="l"><b>${pend(v.solicitante)}</b></td></tr>
+      <tr><td class="l"><b>Localización:</b></td><td class="l">${pend(v.ubicacion)}</td></tr>
+      <tr><td class="l"><b>Estrato de apoyo:</b></td><td class="l">${pend(v.estrato)}</td></tr>
+      <tr><td class="l"><b>N.º de reporte:</b></td><td class="l">${pend(v.numero)}</td></tr>
+      <tr><td class="l"><b>Fecha:</b></td><td class="l">${fechaLarga(v.fecha)}</td></tr></table>`+fte;
+
+  h+=`<h3>2. Parámetros de diseño</h3>`+T('Geometría de la cimentación.');
+  h+=`<table><tr><th>Parámetro</th><th>Símbolo</th><th>Valor</th><th>Unidad</th></tr>
+      <tr><td class="l">Tipo de zapata</td><td>—</td><td>${TIPOS[p.tipo]}</td><td>—</td></tr>
+      <tr><td class="l">${p.tipo==='circular'?'Diámetro':'Ancho'}</td><td>${p.tipo==='circular'?'D':'B'}</td><td>${f(G.B,2)}</td><td>m</td></tr>
+      ${p.tipo==='rectangular'?`<tr><td class="l">Largo</td><td>L</td><td>${f(G.L,2)}</td><td>m</td></tr>`:''}
+      <tr><td class="l">Profundidad de desplante</td><td>D<sub>f</sub></td><td>${f(p.Df,2)}</td><td>m</td></tr>
+      <tr><td class="l">Excentricidades</td><td>e<sub>B</sub> / e<sub>L</sub></td><td>${f(G.eB,2)} / ${f(G.eL,2)}</td><td>m</td></tr>
+      <tr><td class="l">Dimensiones efectivas</td><td>B′ / L′</td><td>${f(G.Bp,2)} / ${isFinite(G.Lp)?f(G.Lp,2):'∞'}</td><td>m</td></tr>
+      <tr><td class="l">Área efectiva${p.tipo==='corrida'?' (por metro)':''}</td><td>A′</td><td>${f(G.A,3)}</td><td>${p.tipo==='corrida'?'m²/m':'m²'}</td></tr>
+      <tr><td class="l">Inclinación de la carga</td><td>β</td><td>${f(p.beta,1)}</td><td>°</td></tr>
+      <tr><td class="l">Carga vertical de servicio</td><td>V</td><td>${p.V>0?f(p.V,1):'No suministrada'}</td><td>${u}</td></tr></table>`+fte;
+  h+=T('Parámetros del suelo de apoyo.');
+  h+=`<table><tr><th>Parámetro</th><th>Símbolo</th><th>Valor</th><th>Unidad</th></tr>
+      <tr><td class="l">Cohesión efectiva</td><td>c′</td><td>${f(p.c,1)}</td><td>kPa</td></tr>
+      <tr><td class="l">Ángulo de fricción efectivo</td><td>φ′</td><td>${f(p.phi,1)}</td><td>°</td></tr>
+      <tr><td class="l">Peso unitario</td><td>γ</td><td>${f(p.g,2)}</td><td>kN/m³</td></tr>
+      ${p.nfOn?`<tr><td class="l">Peso unitario saturado</td><td>γ<sub>sat</sub></td><td>${f(p.gsat,2)}</td><td>kN/m³</td></tr>`:''}
+      <tr><td class="l">Nivel freático</td><td>D<sub>w</sub></td><td>${p.nfOn?f(p.Dw,2)+' m (caso '+W.caso+')':'No detectado'}</td><td>${p.nfOn?'m':'—'}</td></tr>
+      <tr><td class="l">Sobrecarga efectiva al nivel de desplante</td><td>q</td><td>${f(W.q,2)}</td><td>kPa</td></tr>
+      <tr><td class="l">Peso unitario en el término de γ</td><td>γ</td><td>${f(W.g3,2)}</td><td>kN/m³</td></tr>
+      <tr><td class="l">Factor de seguridad indirecto</td><td>FS<sub>ICP</sub></td><td>${f(p.FS,2)}</td><td>—</td></tr>
+      ${p.usarDirecto?`<tr><td class="l">Factor de seguridad directo</td><td>FS<sub>BM</sub></td><td>${f(p.FSBM,2)}</td><td>—</td></tr>
+      <tr><td class="l">Parámetros reducidos (método directo)</td><td>c′* / φ′*</td><td>${f(R.cR,2)} kPa / ${f(R.phiR,2)}°</td><td>—</td></tr>`:''}</table>`+fte;
+
+  h+=`<h3>3. Metodología</h3>`+ecuaciones(p,R);
+
+  h+=`<h3>4. Resultados por método</h3>`;
+  for(const k of ['terzaghi','meyerhof','hansen']){
+    const m=R.metodos[k]; if(!m) continue;
+    if(!m.est.ok){ h+=`<p><b>${m.nombre}:</b> no aplica. ${esc(m.est.msg)}</p>`; continue; }
+    h+=`<div class="nobr">`+T(`Factores y capacidad última – ${m.nombre}.`)+tablaFactores({metodos:{[k]:m}},true)+fte+`</div>`;
+  }
+  h+=`<div class="nobr">`+T('Resumen de capacidad admisible.');
+  h+=`<table><tr><th>Método</th><th>q<sub>u</sub> (kPa)</th><th>q<sub>adm</sub> ind. (kPa)</th>${p.usarDirecto?'<th>q<sub>adm</sub> dir. (kPa)</th>':''}<th>q<sub>adm</sub> (kPa)</th><th>q<sub>adm</sub> (kgf/cm²)</th><th>Q<sub>adm</sub> (${u})</th></tr>`;
+  for(const k of ['terzaghi','meyerhof','hansen']){
+    const m=R.metodos[k]; if(!m||!m.est.ok) continue;
+    h+=`<tr class="${R.minKey===k?'adopt':''}"><td class="l">${m.nombre}</td><td>${f(m.est.qu,1)}</td><td>${f(m.qadmInd,1)}</td>${p.usarDirecto?`<td>${f(m.qadmDir,1)}</td>`:''}<td>${f(m.qadm,1)}</td><td>${f(m.qadm/KGF,2)}</td><td>${f(m.Qadm,1)}</td></tr>`;
+  }
+  h+=`</table><div class="fte">Fuente: elaboración propia. En verde, el menor valor obtenido.</div></div>`;
+
+  h+=`<h3>5. Capacidad portante admisible</h3>`;
+  if(isFinite(R.qadmMin)){
+    h+=`<p>La menor capacidad admisible obtenida corresponde al método de <b>${R.metodos[R.minKey].nombre}</b>: <b>q<sub>adm</sub> = ${f(R.qadmMin,1)} kPa (${f(R.qadmMin/KGF,2)} kgf/cm²; ${f(R.qadmMin/TM2,2)} t/m²)</b>, equivalente a una carga admisible Q<sub>adm</sub> = ${f(R.QadmMin,1)} ${u} sobre el área efectiva. La capacidad que adopte el ingeniero no debe superar este valor.</p>`;
+    if(p.V>0) h+=`<p>Verificación con la carga vertical de servicio V = ${f(p.V,1)} ${u}: Q<sub>adm</sub> ${R.QadmMin>=p.V?'≥':'&lt;'} V → <b>${R.QadmMin>=p.V?'CUMPLE':'NO CUMPLE'}</b>.</p>`;
+  } else h+=`<p class="pend">Ningún método seleccionado es aplicable con los datos ingresados.</p>`;
+
+  const av=[];
+  R.avisos.forEach(a=>av.push(a));
+  for(const k in R.metodos){ const m=R.metodos[k]; if(m.est.ok) m.est.avisos.forEach(a=>av.push(m.nombre+': '+a)); }
+  h+=`<h3>6. Observaciones y alcance</h3><ul>`;
+  av.forEach(a=>h+=`<li>${esc(a)}</li>`);
+  h+=`<li>Los parámetros c′, φ′ y γ deben ser representativos del estrato de apoyo y estar sustentados en la exploración y los ensayos de laboratorio del estudio geotécnico.</li>
+      <li>Este cálculo no incluye la verificación de asentamientos (NSR-10, Título H) ni la condición seudoestática (Tabla H.4.7-1); la capacidad adoptada debe satisfacer también esos estados límite.</li>
+      <li>Las cargas de la estructura son aproximadas; el diseñador estructural debe confirmarlas (NSR-10, H.2.2.2.1).</li>
+      <li>El análisis supone falla general por corte. En suelos sueltos o blandos debe evaluarse la falla local o por punzonamiento.</li></ul>`;
+
+  h+=`<h3>Referencias</h3><ul class="refs">
+      <li>Asociación Colombiana de Ingeniería Sísmica – AIS. (2010). <i>Reglamento Colombiano de Construcción Sismo Resistente NSR-10, Título H: Estudios geotécnicos</i>. Bogotá.</li>
+      ${p.metodos.hansen?'<li>Bowles, J. E. (1996). <i>Foundation analysis and design</i> (5th ed.). McGraw-Hill.</li>':''}
+      ${p.metodos.terzaghi?'<li>Coduto, D. P. (2001). <i>Foundation design: Principles and practices</i> (2nd ed.). Prentice Hall.</li>':''}
+      <li>Das, B. M. (2016). <i>Principles of foundation engineering</i> (8th ed.). Cengage Learning.</li>
+      ${p.metodos.meyerhof?'<li>De Beer, E. E. (1970). Experimental determination of the shape factors and bearing capacity factors of sand. <i>Géotechnique, 20</i>(4), 387–411.</li>':''}
+      <li>Hansen, J. B. (1970). A revised and extended formula for bearing capacity. <i>Danish Geotechnical Institute Bulletin, 28</i>, 5–11.</li>
+      ${p.metodos.meyerhof?'<li>Hanna, A. M., &amp; Meyerhof, G. G. (1981). Experimental evaluation of bearing capacity of footings subjected to inclined loads. <i>Canadian Geotechnical Journal, 18</i>(4), 599–603.</li>':''}
+      <li>Meyerhof, G. G. (1953). The bearing capacity of foundations under eccentric and inclined loads. <i>Proc. 3rd ICSMFE</i>, 1, 440–445.</li>
+      ${p.metodos.meyerhof?'<li>Meyerhof, G. G. (1963). Some recent research on the bearing capacity of foundations. <i>Canadian Geotechnical Journal, 1</i>(1), 16–26.</li>':''}
+      ${p.metodos.terzaghi?'<li>Terzaghi, K. (1943). <i>Theoretical soil mechanics</i>. Wiley.</li>':''}
+      ${p.metodos.meyerhof?'<li>Vesić, A. S. (1973). Analysis of ultimate loads of shallow foundations. <i>Journal of the Soil Mechanics and Foundations Division, ASCE, 99</i>(SM1), 45–73.</li>':''}
+      </ul>`;
+
+  h+=`<div class="firma nobr"><div><b>${LAB.resp}</b><br>${LAB.cargo}<br>${LAB.mp}</div></div>`;
+  const contacto=[LAB.dir, v.tel&&('Tel.: '+esc(v.tel)), v.mail&&esc(v.mail)].filter(Boolean).join(' · ');
+  h+=`<div class="pie">${LAB.nombre}<br>${contacto}</div>`;
+
+  $('hoja').innerHTML=h;
+  $('reporteWrap').classList.remove('hide');
+  document.title = 'Capacidad portante ' + (v.numero||'');
+  $('reporteWrap').scrollTop=0;
+}
+
+/* --- eventos --- */
+document.querySelectorAll('#app input, #app select').forEach(el=>{
+  el.addEventListener('input', recalcular); el.addEventListener('change', recalcular);
+});
+$('btnReporte').onclick=reporte;
+$('btnCerrar').onclick=()=>{ $('reporteWrap').classList.add('hide'); document.title='Capacidad Portante J.G'; };
+$('btnImprimir').onclick=()=>window.print();
+$('btnLimpiar').onclick=()=>{
+  if(!confirm('¿Borrar los datos del proyecto y empezar un cálculo nuevo?')) return;
+  const keep={}; const cur=getVals(); LAB_CAMPOS.forEach(k=>keep[k]=cur[k]);
+  setVals(Object.assign({},DEF,keep,{fecha:hoy()})); recalcular(); window.scrollTo(0,0);
+};
+
+setVals(Object.assign({}, DEF, cargar()||{}));
+recalcular();
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+})();
+</script>
+</body>
+</html>
